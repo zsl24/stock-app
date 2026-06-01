@@ -1,0 +1,13 @@
+{
+  "name": "stock-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StockScope - 全球股票多因子分析工具",
+  "scripts": {
+    "dev": "npm run dev:server & npm run dev:client",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start"
+  }
+}
