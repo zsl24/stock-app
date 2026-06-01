@@ -1,0 +1,48 @@
+{
+  "description": "美股主题观察池 — 用于盘后复盘日报",
+  "themes": {
+    "gold_silver": {
+      "name": "金银",
+      "nameZh": "金银主题",
+      "stocks": ["GLD", "SLV", "GDX", "GDXJ"],
+      "futures": ["GC=F", "SI=F"],
+      "macro": ["DXY", "US10Y", "VIX"],
+      "description": "黄金、白银及相关矿业ETF，关注美元和实际利率"
+    },
+    "semiconductor": {
+      "name": "Semiconductor",
+      "nameZh": "半导体主题",
+      "stocks": ["NVDA", "AVGO", "AMD", "MU", "TSM", "ASML", "AMAT", "LRCX", "INTC", "QCOM"],
+      "etfs": ["SOXX", "SMH"],
+      "benchmarks": ["^SOX"],
+      "description": "半导体产业链核心标的，包括设计、制造、设备"
+    },
+    "optical_communication": {
+      "name": "Optical Communication",
+      "nameZh": "光通信主题",
+      "stocks": ["AVGO", "MRVL", "ANET", "CIEN", "COHR", "LITE", "AAOI", "FN"],
+      "etfs": [],
+      "description": "光通信、光模块、数据中心互联相关标的"
+    },
+    "big_tech": {
+      "name": "Big Tech",
+      "nameZh": "大科技主题",
+      "stocks": ["MSFT", "AAPL", "GOOGL", "META", "AMZN", "TSLA", "NFLX", "ORCL", "SNOW"],
+      "etfs": ["QQQ", "XLK"],
+      "description": "大型科技股和科技ETF，市场风向标"
+    }
+  },
+  "indices": {
+    "sp500": { "symbol": "^GSPC", "name": "标普500", "sinaCode": "gb_inx" },
+    "nasdaq": { "symbol": "^IXIC", "name": "纳斯达克综合", "sinaCode": "gb_ixic" },
+    "dow": { "symbol": "^DJI", "name": "道琼斯工业", "sinaCode": "gb_dji" },
+    "sox": { "symbol": "^SOX", "name": "费城半导体", "sinaCode": "" }
+  },
+  "macro": {
+    "vix": { "symbol": "^VIX", "name": "恐慌指数", "sinaCode": "" },
+    "dxy": { "symbol": "DX-Y.NYB", "name": "美元指数", "sinaCode": "" },
+    "us10y": { "symbol": "^TNX", "name": "10年期美债收益率", "sinaCode": "" },
+    "gold": { "symbol": "GC=F", "name": "黄金期货", "sinaCode": "" },
+    "silver": { "symbol": "SI=F", "name": "白银期货", "sinaCode": "" }
+  }
+}

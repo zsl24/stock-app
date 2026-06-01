@@ -7,6 +7,7 @@ import marketRoutes from './routes/market.js';
 import stockRoutes from './routes/stocks.js';
 import newsRoutes from './routes/news.js';
 import reviewRoutes from './routes/review.js';
+import { initSchema } from './db/schema.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,6 +52,13 @@ if (fs.existsSync(clientDist)) {
   console.log(`   Static files: ${clientDist}`);
 } else {
   console.log(`   ⚠️  Frontend not built — run: cd client && npm run build`);
+}
+
+// Initialize database
+try {
+  initSchema();
+} catch (err) {
+  console.warn('[DB] Schema init warning (non-fatal):', err);
 }
 
 // Start server
