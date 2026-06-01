@@ -127,3 +127,56 @@ export const MARKET_LABELS: Record<MarketTab, string> = {
   us: '🇺🇸 美股',
   hk: '🇭🇰 港股',
 };
+
+// Dashboard view tabs
+export type DashboardView = 'hot' | 'review';
+
+// Market review types
+export interface IndexTrend {
+  symbol: string;
+  name: string;
+  price: number;
+  changePercent: number;
+  fiveDayReturn: number;
+  fiveDayData: { date: string; close: number }[];
+  trendSignal: 'strong_up' | 'up' | 'sideways' | 'down' | 'strong_down';
+  trendLabel: string;
+}
+
+export interface MarketBreadth {
+  advanceCount: number;
+  declineCount: number;
+  unchangedCount: number;
+  advanceRatio: number;
+  totalVolume: number;
+  avgVolume5Day: number;
+  volumeRatio: number;
+}
+
+export interface SectorPerformance {
+  name: string;
+  nameZh: string;
+  avgChangePercent: number;
+  avgVolumeRatio: number;
+  advanceCount: number;
+  declineCount: number;
+  topGainers: { symbol: string; name: string; changePercent: number }[];
+  fiveDayTrend: number;
+}
+
+export interface KeyFinding {
+  type: 'bullish' | 'bearish' | 'neutral' | 'warning';
+  text: string;
+}
+
+export interface MarketReviewData {
+  date: string;
+  marketStatus: string;
+  indices: IndexTrend[];
+  breadth: MarketBreadth;
+  sectors: SectorPerformance[];
+  topGainers: { symbol: string; name: string; changePercent: number; sector: string }[];
+  topLosers: { symbol: string; name: string; changePercent: number; sector: string }[];
+  findings: KeyFinding[];
+  updatedAt: number;
+}

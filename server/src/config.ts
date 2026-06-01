@@ -106,6 +106,64 @@ export const HK_STOCK_POOL = [
   '2331.HK', // 李宁
 ];
 
+// US Stock Sector Classification (GICS-based)
+// Used by market review for sector analysis
+export interface SectorInfo {
+  name: string;
+  nameZh: string;
+  stocks: string[];
+}
+
+export const US_SECTORS: SectorInfo[] = [
+  {
+    name: 'Technology',
+    nameZh: '科技',
+    stocks: ['AAPL', 'MSFT', 'GOOGL', 'NVDA', 'ADBE', 'CRM', 'AMD', 'INTC', 'ORCL', 'CSCO', 'QCOM', 'TXN', 'AMAT', 'AVGO', 'MU', 'SNOW', 'PLTR'],
+  },
+  {
+    name: 'Communication',
+    nameZh: '通讯',
+    stocks: ['META', 'NFLX', 'DIS'],
+  },
+  {
+    name: 'Financial',
+    nameZh: '金融',
+    stocks: ['JPM', 'BAC', 'V', 'MA', 'SPGI', 'PYPL'],
+  },
+  {
+    name: 'Healthcare',
+    nameZh: '医疗健康',
+    stocks: ['JNJ', 'UNH', 'PFE', 'MRK', 'ABBV', 'LLY', 'TMO', 'DHR'],
+  },
+  {
+    name: 'Consumer',
+    nameZh: '消费',
+    stocks: ['WMT', 'PG', 'HD', 'NKE', 'COST'],
+  },
+  {
+    name: 'Industrial',
+    nameZh: '工业制造',
+    stocks: ['BA', 'CAT', 'GE', 'MMM', 'IBM'],
+  },
+  {
+    name: 'Energy',
+    nameZh: '能源',
+    stocks: ['CVX', 'XOM'],
+  },
+  {
+    name: 'Tech-Mobility',
+    nameZh: '科技出行',
+    stocks: ['TSLA', 'AMZN', 'UBER', 'ABNB'],
+  },
+];
+
+// US indices for market review (Sina codes)
+export const US_INDEX_SINA_CODES = {
+  nasdaq: 'gb_ixic',   // 纳斯达克综合
+  dji: 'gb_dji',        // 道琼斯工业
+  spx: 'gb_inx',        // 标普500
+};
+
 // Get pool by market code
 export function getStockPool(market: string): string[] {
   switch (market) {

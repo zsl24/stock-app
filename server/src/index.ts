@@ -6,6 +6,7 @@ import { SERVER_PORT } from './config.js';
 import marketRoutes from './routes/market.js';
 import stockRoutes from './routes/stocks.js';
 import newsRoutes from './routes/news.js';
+import reviewRoutes from './routes/review.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +28,7 @@ app.use((req, _res, next) => {
 app.use('/api/market', marketRoutes);
 app.use('/api/stocks', stockRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/review', reviewRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
