@@ -60,6 +60,94 @@ function getThemeForSymbol(symbol: string, themes: Record<string, string[]>): st
   return '其他';
 }
 
+// Build a concise daily brief (~1200 Chinese characters)
+// Focus: market overview → what's worth buying → what needs caution → quick actions
+function buildDailyBrief(
+  reportDate: string,
+  riskScores: RiskSummary,
+  indicators: Map<string, IndicatorResult>,
+  indexData: Array<{ name: string; symbol: string; changePct: number; price: number }>,
+  sectorData: Array<{ nameZh: string; avgChangePercent: number }>,
+  breadthData: { advanceCount: number; declineCount: number; advanceRatio: number },
+  macroMap: Map<string, { price: number | null; changePct: number | null; available: boolean; name: string }>,
+  guidance: { range: string },
+  topGainers: Array<{ symbol: string; changePercent: number }>,
+): string {
+  const riskIcon = { low: '🟢', medium: '🟡', high: '🟠', extreme: '🔴' }[riskScores.overallLevel] || '⚪';
+  const avgIdxChange = indexData.length > 0
+    ? indexData.reduce((s, i) => s + i.changePct, 0) / indexData.length
+    : 0;
+
+  // 1. Market overview in one paragraph
+  const marketDirection = avgIdxChange > 0.5 ? '全面走强' : avgIdxChange > 0 ? '小幅上涨' : avgIdxChange < -0.5 ? '承压回落' : '窄幅震荡';
+  const idxSummary = indexData.map(i => `${i.name} ${i.changePct >= 0 ? '+' : ''}${i.changePct.toFixed(2)}%`).join('，');
+  const breadthNote = breadthData.advanceRatio > 60 ? '普涨' : breadthData.advanceRatio > 40 ? '分化' : '普跌';
+
+  // 2. Sectors worth buying / watching
+  const strongSectors = sectorData.filter(s => s.avgChangePercent > 0.5).slice(0, 2);
+  const weakSectors = sectorData.filter(s => s.avgChangePercent < -0.5).slice(-2).reverse();
+
+  // Strong individual stocks for buy consideration
+  const buyCandidates = [...indicators.entries()]
+    .filter(([, ind]) =>
+      ind.changePct > 1 &&
+      !ind.belowMa20 &&
+      !ind.belowMa50 &&
+      (ind.trend3d === 'up3' || ind.trend3d === 'up') &&
+      ind.volumeVsAvg && ind.volumeVsAvg > 0.8
+    )
+    .sort((a, b) => b[1].changePct - a[1].changePct)
+    .slice(0, 5);
+
+  const riskCandidates = [...indicators.entries()]
+    .filter(([, ind]) =>
+      ind.changePct < -1.5 ||
+      ind.belowMa50 ||
+      ind.trend3d === 'down3'
+    )
+    .sort((a, b) => a[1].changePct - b[1].changePct)
+    .slice(0, 5);
+
+  // 3. Risk highlights
+  const highRiskDims = riskScores.dimensions.filter(d => d.riskLevel === 'high' || d.riskLevel === 'extreme');
+  const riskWarnings = highRiskDims.length > 0
+    ? highRiskDims.map(d => `${d.dimensionZh}（${d.finalScore}/100）`).join('、')
+    : '各维度风险均在可控范围';
+
+  // 4. Gold/silver status
+  const goldPrice = macroMap.get('GOLD');
+  const goldNote = goldPrice?.available && goldPrice.price
+    ? `黄金 ${goldPrice.price.toFixed(1)}${goldPrice.changePct ? '（' + (goldPrice.changePct >= 0 ? '+' : '') + goldPrice.changePct.toFixed(2) + '%）' : ''}`
+    : '';
+
+  // --- Compose the brief ---
+  return `## 📋 今日简报
+
+**市场状态：** ${riskIcon} ${riskScores.overallLevelZh}（综合风险 ${riskScores.overallScore}/100）| ${marketDirection} | ${breadthNote}格局（${breadthData.advanceCount}涨/${breadthData.declineCount}跌）
+
+**指数表现：** ${idxSummary}
+
+**值得关注：**
+${strongSectors.length > 0
+    ? strongSectors.map(s => `· ${s.nameZh}板块领涨（${s.avgChangePercent >= 0 ? '+' : ''}${s.avgChangePercent.toFixed(2)}%），资金持续流入`).join('\n')
+    : '· 暂无板块显著走强，建议观望等待方向选择'}
+${buyCandidates.length > 0
+    ? `· 技术面走强标的：${buyCandidates.map(([sym, ind]) => `${sym}（${ind.changePct >= 0 ? '+' : ''}${ind.changePct.toFixed(1)}%，${ind.trend3dLabel}）`).join('、')}`
+    : '· 暂无符合买入条件的标的，等待回调或突破确认'}
+${goldNote ? `· ${goldNote}` : ''}
+
+**需要警惕：**
+${weakSectors.length > 0
+    ? weakSectors.map(s => `· ${s.nameZh}板块走弱（${s.avgChangePercent.toFixed(2)}%），短期回避或减仓`).join('\n')
+    : '· 各板块表现相对均衡，无显著弱势板块'}
+${riskCandidates.length > 0
+    ? `· 技术面走弱标的：${riskCandidates.map(([sym, ind]) => `${sym}（${ind.changePct.toFixed(1)}%，${ind.belowMa50 ? '破50日线' : ind.trend3dLabel}）`).join('、')}`
+    : ''}
+${riskWarnings ? `· 风险关注：${riskWarnings}` : ''}
+
+**操作速览：** 美股总仓位建议 ${guidance.range} | ${riskScores.overallLevel === 'extreme' ? '优先保护利润，不做新开仓' : riskScores.overallLevel === 'high' ? '控制仓位，等待回踩企稳信号' : riskScores.overallLevel === 'medium' ? '中性仓位，精选标的，分批建仓' : '可适度积极，关注突破买入机会'}`;
+}
+
 export async function buildDailyReport(
   reportDate: string,
   indicators: Map<string, IndicatorResult>,
@@ -110,7 +198,14 @@ export async function buildDailyReport(
   };
   const guidance = positionGuidance[riskScores.overallLevel] || positionGuidance.medium;
 
+  // --- Build concise daily brief (≤1200 chars) ---
+  const brief = buildDailyBrief(reportDate, riskScores, indicators, indexData, sectorData, breadthData, macroMap, guidance, topGainers);
+
   const reportText = `【美股盘后复盘日报 — ${reportDate}】
+
+${brief}
+
+---
 
 ## 一、今日市场发生了什么
 
