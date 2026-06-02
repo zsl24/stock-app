@@ -180,3 +180,96 @@ export interface MarketReviewData {
   findings: KeyFinding[];
   updatedAt: number;
 }
+
+// Full daily report types (v2)
+export interface RiskDimension {
+  dimension: string;
+  dimensionZh: string;
+  ruleScore: number;
+  aiAdjustment: number;
+  finalScore: number;
+  riskLevel: string;
+  riskLevelZh: string;
+  reasons: string[];
+}
+
+export interface RiskSummary {
+  date: string;
+  dimensions: RiskDimension[];
+  overallScore: number;
+  overallLevel: string;
+  overallLevelZh: string;
+  dataTime: string;
+  source: string;
+}
+
+export interface MacroIndicator {
+  symbol: string;
+  name: string;
+  price: number | null;
+  changePct: number | null;
+  available: boolean;
+  error?: string;
+  dataTime: string;
+  source: string;
+}
+
+export interface DailyReport {
+  reportDate: string;
+  title: string;
+  sections: { title: string; content: string }[];
+  reportText: string;
+  marketSummary: string;
+  riskSummary: string;
+  actionSummary: string;
+  opportunitySummary: string;
+  dataQualityNotes: string[];
+}
+
+export interface MarketDataRow {
+  trade_date: string;
+  symbol: string;
+  name?: string;
+  close?: number;
+  change_pct?: number;
+  volume?: number;
+  ma20?: number;
+  ma50?: number;
+  ma200?: number;
+  below_ma20?: number;
+  below_ma50?: number;
+  below_ma200?: number;
+  volume_vs_avg?: number;
+  trend_3d?: string;
+}
+
+export interface GenerateReportResponse {
+  reportDate: string;
+  riskScores: RiskSummary;
+  macroData: MacroIndicator[];
+  dailyReport: DailyReport;
+  symbolsAnalyzed: number;
+  dataMissing: string[];
+}
+
+export interface LatestReportResponse {
+  report: {
+    report_date: string;
+    title: string;
+    report_text: string;
+    market_summary: string;
+    risk_summary: string;
+    action_summary: string;
+    opportunity_summary: string;
+    data_quality_notes: string;
+  } | null;
+  riskScores: Array<{
+    risk_dimension: string;
+    rule_score: number;
+    final_score: number;
+    risk_level: string;
+    reasons: string;
+  }>;
+  marketData: MarketDataRow[];
+  hasData: boolean;
+}
